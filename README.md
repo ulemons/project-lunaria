@@ -27,15 +27,16 @@ npm install
 npm run build
 ```
 
+🌱 We recommend registering your Lunaria seed with the following command:
+```bash
+npm run register
+```
+
 ▶️ Start it manually:
 ```bash
 npm start
 ```
 
-🛠️ Set up automatic cron job:
-```bash
-npm run setup
-```
 
 ## 🔧 Camera Setup
 
