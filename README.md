@@ -44,13 +44,14 @@ sudo apt install libcamera-apps
 
 ## 🧪 Compatibility
 
-| Device              | Status     |
-|---------------------|------------|
-| Raspberry Pi 4 B    | ✅ Tested  |
-| Raspberry Pi 3 B+   | ✅ Tested  |
-| Raspberry Pi Zero 2 | ⚠️ Expected |
-| Pi OS Bookworm      | ✅ Tested  |
-| Ubuntu ARM64        | ⚠️ Partial |
+| Device                  | Status     |
+|-------------------------|------------|
+| Raspberry Pi Zero W 1.1 | ⚠️ Expected |
+
+### MUST CHECK
+| OS                  | Status     |
+|-------------------------|------------|
+| Raspberry Pi Zero W 1.1 | ⚠️ Expected |
 
 ## Roadmap
 
