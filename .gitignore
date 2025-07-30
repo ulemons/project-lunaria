@@ -19,3 +19,6 @@ photos/
 
 # VSCode
 .vscode/
+
+seed.json
+photos/
