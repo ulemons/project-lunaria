@@ -54,14 +54,15 @@ sudo apt install libcamera-apps
 
 ## Roadmap
 
+- refactor in moduli
+- log che si sovrascrive fino a un limite massimo di linee
 - riconoscere quando è buio
+- configurazione con nomi in modo che posso avere più di un lunaria-seed
+- cron per far partire allo startup lunaria 
 - LLM per capire se una pianta sta bene oppure no ? 
 - applicazione electron per interagire in wifi con il device
 - scaricare il video
 - integrazione meteo
-- configurazione cron
-- configurazione con nomi in modo che posso avere più di un device
-- sito web con video
 
 
 ---
