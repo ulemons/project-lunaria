@@ -1,0 +1,25 @@
+{
+  "name": "project-lunaria",
+  "version": "0.1.0",
+  "description": "\ud83c\udf31 Timelapse camera system for plant growth using Raspberry Pi + Node.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "setup": "ts-node scripts/setup-cron.ts",
+    "postinstall": "node scripts/postinstall-warning.js"
+  },
+  "bin": {
+    "project-lunaria": "dist/index.js"
+  },
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "cron": "^3.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.0.0",
+    "typescript": "^5.0.0"
+  }
+}
