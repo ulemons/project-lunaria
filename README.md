@@ -16,6 +16,26 @@ A time-lapse camera system built for Raspberry Pi to capture the growth of your 
 
 ## Installation
 
+### dependencies:
+
+install nodeJs using nvm:
+
+```
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+```
+
+
+restart the terminal, now you should be able to run:
+```
+nvm install node
+```
+
+oppure versione precompilata: 
+cd ~
+wget https://unofficial-builds.nodejs.org/download/release/v18.17.1/node-v18.17.1-linux-armv6l.tar.gz
+tar -xzf node-v18.17.1-linux-armv6l.tar.gz
+sudo cp -R node-v18.17.1-linux-armv6l/* /usr/local/
+
 ```bash
 git clone https://github.com/your-username/project-lunaria.git
 cd project-lunaria
@@ -35,6 +55,81 @@ npm run register
 ▶️ Start it manually:
 ```bash
 npm start
+```
+
+## Avvio automatico con systemd
+
+Per avviare Lunaria automaticamente al boot del sistema (es. Raspberry Pi o Linux server), segui questi passaggi:
+
+### 1. Trova il path completo di Node.js e del progetto
+
+Apri il terminale ed esegui:
+
+```bash
+which node
+which npm
+```
+
+Annota i percorsi (es. `/usr/bin/node`, `/usr/local/bin/npm`).
+
+Poi individua la cartella del progetto, ad esempio:
+
+```bash
+/home/ubuntu/lunaria
+```
+
+### 2. Crea un file di servizio systemd
+
+Apri il file del servizio:
+
+```bash
+sudo nano /etc/systemd/system/lunaria.service
+```
+
+Incolla il seguente contenuto, modificando `WorkingDirectory`, `ExecStart`, `User` e `PATH` se necessario:
+
+```ini
+[Unit]
+Description=Avvio automatico del progetto Lunaria
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/npm run start
+WorkingDirectory=/home/ubuntu/lunaria
+Restart=always
+User=ubuntu
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+Environment=NODE_ENV=production
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+```
+
+> **Nota**: sostituisci `ubuntu` con il tuo nome utente (verificabile con `whoami`).
+
+### 3. Attiva e avvia il servizio
+
+```bash
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
+sudo systemctl enable lunaria.service
+sudo systemctl start lunaria.service
+```
+
+### 4. Verifica che funzioni
+
+Controlla lo stato del servizio:
+
+```bash
+sudo systemctl status lunaria.service
+```
+
+E monitora i log in tempo reale:
+
+```bash
+journalctl -u lunaria.service -f
 ```
 
 
