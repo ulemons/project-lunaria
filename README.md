@@ -30,20 +30,23 @@ restart the terminal, now you should be able to run:
 nvm install node
 ```
 
-oppure versione precompilata: 
+or precompiled version: 
+```bash
 cd ~
 wget https://unofficial-builds.nodejs.org/download/release/v18.17.1/node-v18.17.1-linux-armv6l.tar.gz
 tar -xzf node-v18.17.1-linux-armv6l.tar.gz
 sudo cp -R node-v18.17.1-linux-armv6l/* /usr/local/
+```
 
+Clone the project:
 ```bash
-git clone https://github.com/your-username/project-lunaria.git
+git clone https://github.com/ulemons/project-lunaria.git
 cd project-lunaria
-npm install
 ```
 
 📦 Build the project:
 ```bash
+npm install
 npm run build
 ```
 
@@ -57,45 +60,45 @@ npm run register
 npm start
 ```
 
-## Avvio automatico con systemd
+## Autostart with systemd
 
-Per avviare Lunaria automaticamente al boot del sistema (es. Raspberry Pi o Linux server), segui questi passaggi:
+To run automatically Lunaria on system boot (es. Raspberry Pi, Linux server), follow these steps:
 
-### 1. Trova il path completo di Node.js e del progetto
+### 1. Find complete paths of Node.js and project Lunaria
 
-Apri il terminale ed esegui:
+Open terminal and run:
 
 ```bash
 which node
 which npm
 ```
 
-Annota i percorsi (es. `/usr/bin/node`, `/usr/local/bin/npm`).
+Write down the paths (es. `/usr/bin/node`, `/usr/local/bin/npm`).
 
-Poi individua la cartella del progetto, ad esempio:
+Find the project path, for example:
 
 ```bash
-/home/ubuntu/lunaria
+/home/ubuntu/project-lunaria
 ```
 
-### 2. Crea un file di servizio systemd
+### 2. Create new systemd service file
 
-Apri il file del servizio:
+Open the service file:
 
 ```bash
 sudo nano /etc/systemd/system/lunaria.service
 ```
 
-Incolla il seguente contenuto, modificando `WorkingDirectory`, `ExecStart`, `User` e `PATH` se necessario:
+Paste the following text (edit `WorkingDirectory`, `ExecStart`, `User` e `PATH` if needed):
 
 ```ini
 [Unit]
-Description=Avvio automatico del progetto Lunaria
+Description=Automatic start of project Lunaria
 After=network.target
 
 [Service]
 ExecStart=/usr/local/bin/npm run start
-WorkingDirectory=/home/ubuntu/lunaria
+WorkingDirectory=/home/ubuntu/project-lunaria
 Restart=always
 User=ubuntu
 Environment=PATH=/usr/local/bin:/usr/bin:/bin
@@ -107,9 +110,9 @@ StandardError=journal
 WantedBy=multi-user.target
 ```
 
-> **Nota**: sostituisci `ubuntu` con il tuo nome utente (verificabile con `whoami`).
+> **Note**: replace `ubuntu` with your username (retrieved with `whoami`).
 
-### 3. Attiva e avvia il servizio
+### 3. Enable and start the service
 
 ```bash
 sudo systemctl daemon-reexec
@@ -118,15 +121,15 @@ sudo systemctl enable lunaria.service
 sudo systemctl start lunaria.service
 ```
 
-### 4. Verifica che funzioni
+### 4. Check that is runnning
 
-Controlla lo stato del servizio:
+Check service state:
 
 ```bash
 sudo systemctl status lunaria.service
 ```
 
-E monitora i log in tempo reale:
+Monitor live logs:
 
 ```bash
 journalctl -u lunaria.service -f
