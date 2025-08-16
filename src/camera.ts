@@ -21,7 +21,7 @@ const MIN_LUX_THRESHOLD = 5;
 
 async function getCurrentLux(): Promise<number | null> {
   const tempPath = path.join(os.tmpdir(), `lunaria-meta-${Date.now()}.json`);
-  const cmd = `libcamera-still -t 500 --metadata ${tempPath} -o /dev/null --nopreview`;
+  const cmd = `rpicam-still -t 500 --metadata ${tempPath} -o /dev/null --nopreview`;
 
   try {
     await exec(cmd);
@@ -51,7 +51,7 @@ export async function takePhoto(): Promise<void> {
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = `photo-${timestamp}.jpg`;
   const filepath = path.join(PHOTOS_DIR, filename);
-  const cmd = `libcamera-still -o ${filepath} --nopreview -t 1000`;
+  const cmd = `rpicam-still -o ${filepath} --nopreview -t 1000`;
 
   try {
     await exec(cmd);

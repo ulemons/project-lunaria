@@ -18,7 +18,7 @@ A time-lapse camera system built for Raspberry Pi to capture the growth of your 
 
 ### 🔧 Camera Setup
 
-Ensure `libcamera-still` is installed:
+Ensure `rpicam-still` is installed:
 
 ```bash
 sudo apt update
