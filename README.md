@@ -16,9 +16,18 @@ A time-lapse camera system built for Raspberry Pi to capture the growth of your 
 
 ## Installation
 
-### dependencies:
+### 🔧 Camera Setup
 
-install nodeJs using nvm:
+Ensure `libcamera-still` is installed:
+
+```bash
+sudo apt update
+sudo apt install libcamera-apps
+```
+
+### NodeJs Setup
+
+Install `nodeJs` using `nvm`:
 
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
@@ -30,13 +39,9 @@ restart the terminal, now you should be able to run:
 nvm install node
 ```
 
-or precompiled version: 
-```bash
-cd ~
-wget https://unofficial-builds.nodejs.org/download/release/v18.17.1/node-v18.17.1-linux-armv6l.tar.gz
-tar -xzf node-v18.17.1-linux-armv6l.tar.gz
-sudo cp -R node-v18.17.1-linux-armv6l/* /usr/local/
-```
+### Run The project
+
+Now it is time to clone the repository:
 
 Clone the project:
 ```bash
@@ -136,39 +141,26 @@ journalctl -u lunaria.service -f
 ```
 
 
-## 🔧 Camera Setup
-
-Ensure `libcamera-still` is installed:
-
-```bash
-sudo apt update
-sudo apt install libcamera-apps
-```
 
 ## 🧪 Compatibility
 
 | Device                  | OS | Status     |
 |-------------------------|----|------------|
-| Raspberry Pi Zero W 1.1 |    | ⚠️ Expected |
+| Raspberry Pi Zero W 1.1 |    |      ❌    |
 
 ## Roadmap
 
-- refactor in moduli
-- log che si sovrascrive fino a un limite massimo di linee
-- riconoscere quando è buio
-- configurazione con nomi in modo che posso avere più di un lunaria-seed
-- cron per far partire allo startup lunaria 
-- LLM per capire se una pianta sta bene oppure no ? 
-- applicazione electron per interagire in wifi con il device
-- scaricare il video
-- integrazione meteo
+### Seed Development
+1. Seed Discovery: we want to give the ability to find all the seed in your network
+2. Seed Configuration: once you have found all your seeds via api you should be able to update some configuration (e.g add a profile picture of the seed)
+3. LLm to understand weather the plant is in a good shape or not
+4. Weather Integration
+5. Api to download pictures with range
+6. Can we make the configuration of the service more automatic ?
+7. Can a user update the wifi user/password just via bluetooth ? 
 
-
----
-- [ ] Optional web dashboard  
-- [ ] Configurable intervals  
-- [ ] Cloud photo backup  
-- [ ] Sensor integration (light, moisture)  
+### App Development
+1. Electron app skeleton
 
 ## License
 
