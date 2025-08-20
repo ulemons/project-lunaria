@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 Project Lunaria Docs
+    url: https://github.com/tuo-username/project-lunaria/wiki
+    about: Check the documentation and guides before opening a new issue.
+  - name: 💬 Discussions
+    url: https://github.com/tuo-username/project-lunaria/discussions
+    about: For general questions or brainstorming, please use discussions instead of issues.
