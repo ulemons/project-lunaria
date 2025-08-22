@@ -11,6 +11,7 @@ export function startApiServer(): void {
     return;
   }
 
+
   const app = express();
   const photosPath = path.resolve(config.photosDir);
 

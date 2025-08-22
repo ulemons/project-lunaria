@@ -8,7 +8,7 @@ chore(ci): add lint + typecheck to pipeline
 -->
 
 ## 📖 Description:
-<!-- Riassumi la modifica in 1–3 frasi -->
+<!-- Summary of the change 1 to 3 rows -->
 - 
 
 ## 🔄 Main changes
@@ -25,7 +25,7 @@ Closes #123
 Related to #456
 
 ## ✅ Checklist
-- [ ] `lint` e `typecheck` passano (`npm run lint`, `npm run typecheck`)
+- [ ] `lint` end `typecheck` are successful (`npm run lint`, `npm run typecheck`)
 - [ ] Added test
 - [ ] Docs updated (README / wiki)
 - [ ] Variable env updated (no leak in repo/CI)

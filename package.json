@@ -2,19 +2,68 @@
   "name": "project-lunaria",
   "version": "0.1.0",
   "description": "🌱 Timelapse camera system for plant growth using Raspberry Pi + Node.js",
+  "author": "ulemons",
+  "license": "MIT",
+  "keywords": [
+    "automation",
+    "botany",
+    "camera",
+    "cron",
+    "edge-computing",
+    "express",
+    "garden",
+    "gardening",
+    "greenhouse",
+    "horticulture",
+    "iot",
+    "lunaria",
+    "node",
+    "nodejs",
+    "pi-camera",
+    "plant-growth",
+    "plant",
+    "plants",
+    "raspberry-pi",
+    "raspberrypi",
+    "time-lapse",
+    "timelapse",
+    "typescript"
+  ],
+  "homepage": "https://github.com/ulemons/project-lunaria#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ulemons/project-lunaria.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ulemons/project-lunaria/issues"
+  },
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "scripts": {
-    "build": "tsc",
-    "postinstall": "node scripts/postinstall-warning.js",
-    "register": "ts-node src/cli.ts",
-    "start": "node dist/index.js"
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "bin": {
     "project-lunaria": "dist/index.js"
   },
-  "author": "ulemons",
-  "license": "MIT",
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "postinstall": "node scripts/postinstall-warning.js",
+    "register": "ts-node src/cli.ts",
+    "start": "node dist/index.js",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run build && npm test --if-present"
+  },
   "dependencies": {
     "cron": "^3.0.0",
     "express": "^4.18.0",
