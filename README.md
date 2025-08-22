@@ -144,9 +144,9 @@ journalctl -u lunaria.service -f
 
 ## 🧪 Compatibility
 
-| Device                  | OS | Status     |
-|-------------------------|----|------------|
-| Raspberry Pi Zero W 1.1 |    |      ❌    |
+| Device                  | OS | Status     | Note |
+|-------------------------|----|------------|------|
+| Raspberry Pi Zero W 1.1 |    |      ❌    |Currently unsupported due to hardware limitations.      |
 
 ## Roadmap
 
@@ -164,4 +164,5 @@ journalctl -u lunaria.service -f
 
 ## License
 
-MIT © ulemons
+This project is licensed under the **MIT License**.  
+© 2025 Umberto Sgueglia (ulemons). See [LICENSE](./LICENSE) for details.
