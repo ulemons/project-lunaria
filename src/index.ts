@@ -7,7 +7,7 @@ export function startLunaria(): void {
   ensurePhotosDir();
 
   // Run every hour on the hour
-  const job = new CronJob(CRON_HOURLY, takePhoto, null, true, 'UTC');
+  new CronJob(CRON_HOURLY, takePhoto, null, true, 'UTC');
 
   console.log('[🌱] Project Lunaria started. Taking photos of your plants.');
 }

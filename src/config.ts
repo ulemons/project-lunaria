@@ -11,6 +11,12 @@ export type SeedConfig = {
   port: number;
 };
 
+export type DownloadConfig = {
+  seedUrl: string;
+  downloadDir: string;
+  overwrite?: boolean;
+};
+
 const CONFIG_PATH = path.resolve('seed.json');
 
 export function loadSeedConfig(): SeedConfig | null {

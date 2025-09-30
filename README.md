@@ -49,18 +49,68 @@ git clone https://github.com/ulemons/project-lunaria.git
 cd project-lunaria
 ```
 
-📦 Build the project:
+📦 Build and install the project:
 ```bash
 npm install
 npm run build
+npm install -g .
 ```
 
-🌱 We recommend registering your Lunaria seed with the following command:
+## 🛠️ Using Lunaria CLI
+
+Once installed globally, you can use the `lunaria-cli` command from anywhere on your system.
+
+### Available Commands
+
 ```bash
-npm run register
+# Show help and available commands
+lunaria-cli --help
+
+# Register a new seed configuration
+lunaria-cli register
+
+# Download photos from a remote seed
+lunaria-cli download
+
+# Show version information
+lunaria-cli --version
 ```
 
-▶️ Start it manually:
+### Setting up a new seed
+
+Configure your Lunaria seed interactively:
+
+```bash
+lunaria-cli register
+```
+
+This will prompt you for:
+- Plant name (e.g., "Kitchen Basil")
+- Location (e.g., "Kitchen")
+- Owner name
+
+### Downloading photos from remote seeds
+
+Download all photos from a remote Lunaria seed:
+
+```bash
+lunaria-cli download
+```
+
+You'll be prompted to enter:
+- **Seed URL**: The remote seed's API endpoint (e.g., `http://192.168.1.100:4269`)
+- **Download directory**: Local folder to save photos (default: `./downloads`)
+- **Overwrite existing files**: Whether to overwrite files that already exist
+
+The CLI will:
+1. Connect to the remote seed's API
+2. Retrieve the list of available photos
+3. Download each photo with progress indication
+4. Show a summary of downloaded vs skipped files
+
+### Starting the camera system
+
+▶️ Start the time-lapse system manually:
 ```bash
 npm start
 ```
@@ -150,17 +200,26 @@ journalctl -u lunaria.service -f
 
 ## Roadmap
 
+### CLI Development
+- ✅ Global CLI installation with `lunaria-cli` command
+- ✅ Remote photo downloading from seed APIs
+- ✅ Interactive seed registration
+- 🔄 Auto-discovery of seeds in local network
+- 🔄 Bulk operations for multiple seeds
+
 ### Seed Development
-1. Seed Discovery: we want to give the ability to find all the seed in your network
-2. Seed Configuration: once you have found all your seeds via api you should be able to update some configuration (e.g add a profile picture of the seed)
-3. LLm to understand weather the plant is in a good shape or not
-4. Weather Integration
-5. Api to download pictures with range
-6. Can we make the configuration of the service more automatic ?
-7. Can a user update the wifi user/password just via bluetooth ? 
+1. Seed Discovery: automatic detection of seeds in your network
+2. Seed Configuration: API-based configuration management with profile pictures
+3. LLM integration to assess plant health from photos
+4. Weather data integration
+5. API endpoints for downloading photos within date ranges
+6. Automated service configuration and setup
+7. Bluetooth-based WiFi credential updates
 
 ### App Development
-1. Electron app skeleton
+1. Cross-platform desktop app (Electron)
+2. Mobile companion app
+3. Web dashboard for seed management
 
 ## License
 
