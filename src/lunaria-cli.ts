@@ -6,7 +6,7 @@ import path from 'path';
 import { saveSeedConfig } from './config';
 import { downloadPhotosFromSeed } from './download';
 import { createTimelapse } from './timelapse';
-import { discoverSeeds } from './network-scanner';
+import { discoverSeeds, DiscoveredSeed } from './network-scanner';
 
 const DOWNLOAD_DIR_DEFAULT = './photos';
 const VIDEOS_DIR_DEFAULT = './videos';
@@ -23,6 +23,59 @@ function ask(question: string): Promise<string> {
       resolve(answer);
     });
   });
+}
+
+async function selectSeedFromDiscovery(): Promise<string | null> {
+  console.log('🔍 Discovering seeds on the network...\n');
+  
+  const seeds = await discoverSeeds();
+  
+  if (seeds.length === 0) {
+    console.log('❌ No Lunaria seeds found on the network.');
+    console.log('You can manually enter a seed URL, or make sure your seed is running.\n');
+    
+    const manualUrl = await ask('Enter seed URL manually (or press Enter to cancel): ');
+    return manualUrl.trim() || null;
+  }
+  
+  if (seeds.length === 1) {
+    const seed = seeds[0];
+    const useDiscovered = await ask(`Found 1 seed: "${seed.name}" at ${seed.ip}:${seed.port}. Use this? (Y/n): `);
+    
+    if (useDiscovered.toLowerCase() === 'n' || useDiscovered.toLowerCase() === 'no') {
+      const manualUrl = await ask('Enter seed URL manually: ');
+      return manualUrl.trim() || null;
+    }
+    
+    return `http://${seed.ip}:${seed.port}`;
+  }
+  
+  // Multiple seeds found - show selection menu
+  console.log(`✅ Found ${seeds.length} seeds:\n`);
+  
+  seeds.forEach((seed, index) => {
+    console.log(`${index + 1}. 🌱 ${seed.name}`);
+    console.log(`   Location: ${seed.location} | Owner: ${seed.owner}`);
+    console.log(`   URL: http://${seed.ip}:${seed.port}`);
+    console.log('');
+  });
+  
+  console.log(`${seeds.length + 1}. ✏️  Enter URL manually`);
+  console.log(`${seeds.length + 2}. ❌ Cancel\n`);
+  
+  const choice = await ask(`Select seed (1-${seeds.length + 2}): `);
+  const choiceNum = parseInt(choice, 10);
+  
+  if (choiceNum >= 1 && choiceNum <= seeds.length) {
+    const selectedSeed = seeds[choiceNum - 1];
+    return `http://${selectedSeed.ip}:${selectedSeed.port}`;
+  } else if (choiceNum === seeds.length + 1) {
+    const manualUrl = await ask('Enter seed URL: ');
+    return manualUrl.trim() || null;
+  } else {
+    console.log('Operation cancelled.');
+    return null;
+  }
 }
 
 async function registerSeed(): Promise<void> {
@@ -53,9 +106,18 @@ async function registerSeed(): Promise<void> {
 }
 
 async function downloadCommand(): Promise<void> {
-  console.log('📥 Download photos from a remote Lunaria Seed...');
+  console.log('📥 Download photos from a remote Lunaria Seed...\n');
   
-  const seedUrl = await ask('Seed URL (e.g., http://192.168.1.100:4269): ');
+  // Automatic seed discovery and selection
+  const seedUrl = await selectSeedFromDiscovery();
+  
+  if (!seedUrl) {
+    console.log('❌ No seed selected. Download cancelled.');
+    return;
+  }
+  
+  console.log(`\n📡 Selected seed: ${seedUrl}`);
+  
   const overwriteAnswer = await ask('Overwrite existing files? (y/N): ');
   const overwrite = overwriteAnswer.toLowerCase() === 'y' || overwriteAnswer.toLowerCase() === 'yes';
   
@@ -73,8 +135,53 @@ async function downloadCommand(): Promise<void> {
 
 async function timelapseCommand(): Promise<void> {
   console.log('🎬 Create timelapse video from photos...');
-  console.log('📋 Note: This command requires FFmpeg to be installed on your system.');
+  console.log('📋 Note: This command requires FFmpeg to be installed on your system.\n');
   
+  // Ask if user wants to download from a remote seed or use local photos
+  const sourceChoice = await ask('Photo source - (1) Download from remote seed, (2) Use local photos: ');
+  
+  let photosDir = path.resolve(DOWNLOAD_DIR_DEFAULT);
+  
+  if (sourceChoice === '1') {
+    console.log('\n📥 First, let\'s download photos from a seed...\n');
+    
+    // Automatic seed discovery and selection
+    const seedUrl = await selectSeedFromDiscovery();
+    
+    if (!seedUrl) {
+      console.log('❌ No seed selected. Timelapse cancelled.');
+      return;
+    }
+    
+    console.log(`\n📡 Selected seed: ${seedUrl}`);
+    
+    const overwriteAnswer = await ask('Overwrite existing photos? (y/N): ');
+    const overwrite = overwriteAnswer.toLowerCase() === 'y' || overwriteAnswer.toLowerCase() === 'yes';
+    
+    try {
+      await downloadPhotosFromSeed({
+        seedUrl: seedUrl.replace(/\/+$/, ''),
+        downloadDir: photosDir,
+        overwrite
+      });
+      console.log('\n✅ Photos downloaded successfully!\n');
+    } catch (error) {
+      console.error('❌ Download failed:', error instanceof Error ? error.message : error);
+      console.log('❌ Cannot proceed with timelapse without photos.');
+      process.exit(1);
+    }
+  } else if (sourceChoice === '2') {
+    const customDir = await ask(`Photos directory (default: ${DOWNLOAD_DIR_DEFAULT}): `);
+    if (customDir.trim()) {
+      photosDir = path.resolve(customDir.trim());
+    }
+    console.log(`\n📂 Using photos from: ${photosDir}\n`);
+  } else {
+    console.log('❌ Invalid choice. Timelapse cancelled.');
+    return;
+  }
+  
+  // Configure timelapse settings
   const fpsInput = await ask('Frames per second (default: 10): ') || '10';
   const qualityInput = await ask('Quality [low/medium/high] (default: medium): ') || 'medium';
   
@@ -86,9 +193,11 @@ async function timelapseCommand(): Promise<void> {
   const outputFilename = `timelapse-${timestamp}.mp4`;
   const outputPath = path.join(VIDEOS_DIR_DEFAULT, outputFilename);
   
+  console.log('\n🎬 Creating timelapse video...\n');
+  
   try {
     await createTimelapse({
-      photosDir: path.resolve(DOWNLOAD_DIR_DEFAULT),
+      photosDir,
       outputPath: path.resolve(outputPath),
       fps,
       quality
