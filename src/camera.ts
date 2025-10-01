@@ -17,7 +17,7 @@ export function ensurePhotosDir(): void {
 
 const exec = promisify(rawExec);
 
-const MIN_LUX_THRESHOLD = 5;
+const MIN_LUX_THRESHOLD = 3;
 
 async function getCurrentLux(): Promise<number | null> {
   const tempPath = path.join(os.tmpdir(), `lunaria-meta-${Date.now()}.json`);
