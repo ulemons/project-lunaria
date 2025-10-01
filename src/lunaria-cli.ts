@@ -5,8 +5,10 @@ import readline from 'readline';
 import path from 'path';
 import { saveSeedConfig } from './config';
 import { downloadPhotosFromSeed } from './download';
+import { createTimelapse } from './timelapse';
 
 const DOWNLOAD_DIR_DEFAULT = './photos';
+const VIDEOS_DIR_DEFAULT = './videos';
 
 function ask(question: string): Promise<string> {
   const rl = readline.createInterface({
@@ -68,6 +70,34 @@ async function downloadCommand(): Promise<void> {
   }
 }
 
+async function timelapseCommand(): Promise<void> {
+  console.log('🎬 Create timelapse video from photos...');
+  console.log('📋 Note: This command requires FFmpeg to be installed on your system.');
+  
+  const fpsInput = await ask('Frames per second (default: 10): ') || '10';
+  const qualityInput = await ask('Quality [low/medium/high] (default: medium): ') || 'medium';
+  
+  const fps = parseInt(fpsInput, 10) || 10;
+  const quality = ['low', 'medium', 'high'].includes(qualityInput) ? qualityInput as 'low' | 'medium' | 'high' : 'medium';
+  
+  // Generate timestamp-based filename
+  const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+  const outputFilename = `timelapse-${timestamp}.mp4`;
+  const outputPath = path.join(VIDEOS_DIR_DEFAULT, outputFilename);
+  
+  try {
+    await createTimelapse({
+      photosDir: path.resolve(DOWNLOAD_DIR_DEFAULT),
+      outputPath: path.resolve(outputPath),
+      fps,
+      quality
+    });
+  } catch (error) {
+    console.error('❌ Timelapse creation failed:', error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+}
+
 function showHelp(): void {
   console.log(`
 🌱 Lunaria CLI - Timelapse Plant Growth System
@@ -78,16 +108,19 @@ Usage:
 Commands:
   register                Register a new seed configuration
   download                Download photos from a remote seed
+  timelapse               Create timelapse video from photos
   --register              Alias for register
   --download              Alias for download
+  --timelapse             Alias for timelapse
   --help, -h              Show this help message
   --version, -v           Show version information
 
 Examples:
   lunaria-cli register    # Interactive setup for new seed
   lunaria-cli download    # Download photos from remote seed
+  lunaria-cli timelapse   # Create timestamped timelapse in ./videos/
   lunaria-cli --help      # Show this help
-  lunaria-cli --download  # Download with -- prefix
+  lunaria-cli --timelapse # Create timelapse with -- prefix
   `);
 }
 
@@ -108,6 +141,10 @@ async function main(): Promise<void> {
     case 'download':
     case '--download':
       await downloadCommand();
+      break;
+    case 'timelapse':
+    case '--timelapse':
+      await timelapseCommand();
       break;
     case 'help':
     case '--help':
