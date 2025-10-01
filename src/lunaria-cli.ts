@@ -6,6 +6,7 @@ import path from 'path';
 import { saveSeedConfig } from './config';
 import { downloadPhotosFromSeed } from './download';
 import { createTimelapse } from './timelapse';
+import { discoverSeeds } from './network-scanner';
 
 const DOWNLOAD_DIR_DEFAULT = './photos';
 const VIDEOS_DIR_DEFAULT = './videos';
@@ -98,6 +99,35 @@ async function timelapseCommand(): Promise<void> {
   }
 }
 
+async function discoverCommand(): Promise<void> {
+  console.log('🔍 Searching for Lunaria seeds on the network...');
+  
+  try {
+    const seeds = await discoverSeeds(8000);
+    
+    if (seeds.length === 0) {
+      console.log('\n❌ No Lunaria seeds found.');
+      console.log('Make sure your seed is running and on the same network.');
+    } else {
+      console.log(`\n✅ Found ${seeds.length} seed(s):\n`);
+      
+      seeds.forEach((seed, index) => {
+        console.log(`${index + 1}. 🌱 ${seed.name}`);
+        console.log(`   Location: ${seed.location}`);
+        console.log(`   Owner: ${seed.owner}`);
+        console.log(`   IP: ${seed.ip}:${seed.port}`);
+        console.log(`   API URL: http://${seed.ip}:${seed.port}`);
+        console.log(`   Seed ID: ${seed.seedId}`);
+        console.log(`   Last seen: ${seed.lastSeen.toLocaleTimeString()}`);
+        console.log('');
+      });
+    }
+  } catch (error) {
+    console.error('❌ Discovery failed:', error instanceof Error ? error.message : error);
+    process.exit(1);
+  }
+}
+
 function showHelp(): void {
   console.log(`
 🌱 Lunaria CLI - Timelapse Plant Growth System
@@ -109,9 +139,11 @@ Commands:
   register                Register a new seed configuration
   download                Download photos from a remote seed
   timelapse               Create timelapse video from photos
+  discover                Find Lunaria seeds on the network
   --register              Alias for register
   --download              Alias for download
   --timelapse             Alias for timelapse
+  --discover              Alias for discover
   --help, -h              Show this help message
   --version, -v           Show version information
 
@@ -145,6 +177,10 @@ async function main(): Promise<void> {
     case 'timelapse':
     case '--timelapse':
       await timelapseCommand();
+      break;
+    case 'discover':
+    case '--discover':
+      await discoverCommand();
       break;
     case 'help':
     case '--help':
