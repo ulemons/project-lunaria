@@ -3,6 +3,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { loadSeedConfig } from './config';
+import { seedDiscovery } from './discovery';
 
 export function startApiServer(): void {
   const config = loadSeedConfig();
@@ -44,7 +45,26 @@ export function startApiServer(): void {
     }
   });
 
+  // Endpoint per discovery nella rete
+  app.get('/discovery', (_, res) => {
+    const photosCount = fs.existsSync(photosPath) ?
+      fs.readdirSync(photosPath).filter(f => f.endsWith('.jpg')).length : 0;
+    
+    res.json({
+      seedId: config.seedId,
+      name: config.name,
+      location: config.location,
+      owner: config.owner,
+      port: config.port,
+      photosCount,
+      timestamp: Date.now()
+    });
+  });
+
   app.listen(config.port, () => {
     console.log(`[🌐] Lunaria API running on http://localhost:${config.port}`);
+    
+    // Inizia ad annunciare questo seed sulla rete
+    seedDiscovery.startAnnouncing(config);
   });
 }
