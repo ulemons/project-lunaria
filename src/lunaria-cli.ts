@@ -81,28 +81,49 @@ async function selectSeedFromDiscovery(): Promise<string | null> {
 async function registerSeed(): Promise<void> {
   console.log('🌱 Registering a new Lunaria Seed...');
 
-  // Dynamic import for ESM modules
-  const { v4: uuidv4 } = await import('uuid');
+  // Generate simple random ID without external dependencies
+  const randomId = Math.random().toString(36).substring(2, 10);
 
   const name = await ask('Plant name (e.g., Kitchen Basil): ');
   const location = await ask('Location (e.g., Kitchen): ');
   const owner = await ask('Owner: ');
+  
+  // Ask for camera rotation
+  console.log('\n📷 Camera orientation setup:');
+  console.log('   0° - Normal (camera upright)');
+  console.log('  90° - Rotated 90° clockwise');
+  console.log(' 180° - Upside down');
+  console.log(' 270° - Rotated 90° counter-clockwise');
+  
+  const rotationInput = await ask('Camera rotation in degrees (0, 90, 180, 270) [default: 0]: ') || '0';
+  const rotation = parseInt(rotationInput, 10);
+  
+  if (![0, 90, 180, 270].includes(rotation)) {
+    console.log('❌ Invalid rotation. Using 0° (no rotation)');
+  }
+  
+  const validRotation = [0, 90, 180, 270].includes(rotation) ? rotation as 0 | 90 | 180 | 270 : undefined;
+  
   const photosDir = './photos';
   const exposeApi = true;
   const port = 4269;
 
   const config = {
-    seedId: `seed-${uuidv4().slice(0, 8)}`,
+    seedId: `seed-${randomId}`,
     name,
     location,
     owner,
     photosDir,
     exposeApi,
-    port
+    port,
+    ...(validRotation && { rotation: validRotation })
   };
 
   saveSeedConfig(config);
   console.log(`✅ Seed registered with ID: ${config.seedId}`);
+  if (validRotation) {
+    console.log(`📷 Camera rotation set to: ${validRotation}°`);
+  }
 }
 
 async function downloadCommand(): Promise<void> {

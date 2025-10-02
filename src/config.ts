@@ -9,6 +9,7 @@ export type SeedConfig = {
   photosDir: string;
   exposeApi: boolean;
   port: number;
+  rotation?: 0 | 90 | 180 | 270; // Rotation in degrees
 };
 
 export type DownloadConfig = {

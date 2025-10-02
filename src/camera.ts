@@ -5,6 +5,7 @@ import path from 'path';
 import { exec as rawExec } from 'child_process';
 import { promisify } from 'util';
 import os from 'os';
+import { loadSeedConfig } from './config';
 
 const PHOTOS_DIR = path.resolve('./photos');
 
@@ -48,14 +49,30 @@ export async function takePhoto(): Promise<void> {
     return;
   }
 
+  // Load configuration to get rotation setting
+  const config = loadSeedConfig();
+  const photosDir = config?.photosDir ? path.resolve(config.photosDir) : PHOTOS_DIR;
+  
+  // Ensure photos directory exists (use configured path)
+  if (!fs.existsSync(photosDir)) {
+    fs.mkdirSync(photosDir, { recursive: true });
+  }
+
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const filename = `photo-${timestamp}.jpg`;
-  const filepath = path.join(PHOTOS_DIR, filename);
-  const cmd = `rpicam-still -o ${filepath} --nopreview -t 1000`;
+  const filepath = path.join(photosDir, filename);
+  
+  // Build camera command with optional rotation
+  let cmd = `rpicam-still -o ${filepath} --nopreview -t 1000`;
+  
+  if (config?.rotation) {
+    cmd += ` --rotation ${config.rotation}`;
+    console.log(`[🔄] Applying rotation: ${config.rotation}°`);
+  }
 
   try {
     await exec(cmd);
-    console.log(`[+] Photo taken: ${filename} (Lux: ${lux})`);
+    console.log(`[+] Photo taken: ${filename} (Lux: ${lux}${config?.rotation ? `, Rotation: ${config.rotation}°` : ''})`);
   } catch (err) {
     console.error(`[!] Error taking photo: ${err}`);
   }

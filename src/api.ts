@@ -57,6 +57,7 @@ export function startApiServer(): void {
       owner: config.owner,
       port: config.port,
       photosCount,
+      rotation: config.rotation,
       timestamp: Date.now()
     });
   });
