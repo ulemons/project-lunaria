@@ -3,7 +3,7 @@
 // Will import uuid dynamically in the function
 import readline from 'readline';
 import path from 'path';
-import { saveSeedConfig } from './config';
+import { saveSeedConfig, getIntervalOptions, IntervalType, updateSeedInterval, loadSeedConfig } from './config';
 import { downloadPhotosFromSeed } from './download';
 import { createTimelapse } from './timelapse';
 import { discoverSeeds, DiscoveredSeed } from './network-scanner';
@@ -104,6 +104,24 @@ async function registerSeed(): Promise<void> {
   
   const validRotation = [0, 90, 180, 270].includes(rotation) ? rotation as 0 | 90 | 180 | 270 : undefined;
   
+  // Ask for photo interval
+  console.log('\n⏰ Photo interval setup:');
+  const intervalOptions = getIntervalOptions();
+  intervalOptions.forEach((option, index) => {
+    const defaultLabel = option.key === 'CRON_HOURLY' ? ' (default)' : '';
+    console.log(`   ${index + 1}. ${option.label}${defaultLabel} - ${option.description}`);
+  });
+  
+  const intervalInput = await ask(`Choose photo interval (1-${intervalOptions.length}) [default: 4 for hourly]: `) || '4';
+  const intervalIndex = parseInt(intervalInput, 10) - 1;
+  
+  let selectedInterval: IntervalType = 'CRON_HOURLY'; // default
+  if (intervalIndex >= 0 && intervalIndex < intervalOptions.length) {
+    selectedInterval = intervalOptions[intervalIndex].key;
+  } else {
+    console.log('❌ Invalid interval choice. Using default (1 hour)');
+  }
+  
   const photosDir = `${__dirname}/..${DOWNLOAD_DIR_DEFAULT}`;
   const exposeApi = true;
   const port = 4269;
@@ -116,11 +134,13 @@ async function registerSeed(): Promise<void> {
     photosDir,
     exposeApi,
     port,
+    interval: selectedInterval,
     ...(validRotation && { rotation: validRotation })
   };
 
   saveSeedConfig(config);
   console.log(`✅ Seed registered with ID: ${config.seedId}`);
+  console.log(`⏰ Photo interval set to: ${intervalOptions.find(opt => opt.key === selectedInterval)?.label}`);
   if (validRotation) {
     console.log(`📷 Camera rotation set to: ${validRotation}°`);
   }
@@ -260,6 +280,52 @@ async function discoverCommand(): Promise<void> {
   }
 }
 
+async function updateIntervalCommand(): Promise<void> {
+  console.log('⏰ Update photo interval for the registered seed...');
+  console.log('📋 Note: This command updates the LOCAL seed configuration.');
+  console.log('    It must be run directly on the device where the seed is running.');
+  console.log('    Remote interval updates are not supported for security reasons.\n');
+  
+  // Check if there's a registered seed
+  const currentConfig = loadSeedConfig();
+  if (!currentConfig) {
+    console.log('❌ No seed configuration found. Please register a seed first using "lunaria-cli register".');
+    return;
+  }
+  
+  console.log(`\n🌱 Current seed: ${currentConfig.name} (${currentConfig.location})`);
+  const currentIntervalOption = getIntervalOptions().find(opt => opt.key === (currentConfig.interval || 'CRON_HOURLY'));
+  console.log(`📅 Current interval: ${currentIntervalOption?.label || 'Unknown'}\n`);
+  
+  // Show interval options
+  console.log('⏰ Available photo intervals:');
+  const intervalOptions = getIntervalOptions();
+  intervalOptions.forEach((option, index) => {
+    const currentLabel = option.key === (currentConfig.interval || 'CRON_HOURLY') ? ' (current)' : '';
+    console.log(`   ${index + 1}. ${option.label}${currentLabel} - ${option.description}`);
+  });
+  
+  const intervalInput = await ask(`\nChoose new photo interval (1-${intervalOptions.length}): `);
+  const intervalIndex = parseInt(intervalInput, 10) - 1;
+  
+  if (intervalIndex < 0 || intervalIndex >= intervalOptions.length) {
+    console.log('❌ Invalid interval choice. Operation cancelled.');
+    return;
+  }
+  
+  const selectedInterval = intervalOptions[intervalIndex].key;
+  
+  // Update the configuration
+  if (updateSeedInterval(selectedInterval)) {
+    console.log(`✅ Photo interval updated to: ${intervalOptions[intervalIndex].label}`);
+    console.log('⚠️  Important: Restart the Lunaria service for changes to take effect.');
+    console.log('💡 Remember: This setting only affects the local seed device.');
+    console.log('    To update remote seeds, access them directly via SSH or physical access.');
+  } else {
+    console.log('❌ Failed to update interval configuration.');
+  }
+}
+
 function showHelp(): void {
   console.log(`
 🌱 Lunaria CLI - Timelapse Plant Growth System
@@ -272,19 +338,26 @@ Commands:
   download                Download photos from a remote seed
   timelapse               Create timelapse video from photos
   discover                Find Lunaria seeds on the network
+  update-interval         Update photo interval for LOCAL seed only
   --register              Alias for register
   --download              Alias for download
   --timelapse             Alias for timelapse
   --discover              Alias for discover
+  --update-interval       Alias for update-interval
   --help, -h              Show this help message
   --version, -v           Show version information
 
 Examples:
-  lunaria-cli register    # Interactive setup for new seed
-  lunaria-cli download    # Download photos from remote seed
-  lunaria-cli timelapse   # Create timestamped timelapse in ./videos/
-  lunaria-cli --help      # Show this help
-  lunaria-cli --timelapse # Create timelapse with -- prefix
+  lunaria-cli register         # Interactive setup for new seed
+  lunaria-cli download         # Download photos from remote seed
+  lunaria-cli timelapse        # Create timestamped timelapse in ./videos/
+  lunaria-cli update-interval  # Change photo frequency (LOCAL seed only)
+  lunaria-cli --help           # Show this help
+  lunaria-cli --timelapse      # Create timelapse with -- prefix
+
+Note:
+  • update-interval only works on the LOCAL seed device
+  • To update remote seeds, access them directly via SSH or console
   `);
 }
 
@@ -294,7 +367,7 @@ async function showVersion(): Promise<void> {
     console.log(`🌱 Lunaria CLI v${packageJson.version}`);
   } catch (error) {
     console.log('🌱 Lunaria CLI (version unavailable)');
-    
+
   }
 }
 
@@ -318,6 +391,10 @@ async function main(): Promise<void> {
     case 'discover':
     case '--discover':
       await discoverCommand();
+      break;
+    case 'update-interval':
+    case '--update-interval':
+      await updateIntervalCommand();
       break;
     case 'help':
     case '--help':
