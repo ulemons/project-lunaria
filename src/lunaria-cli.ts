@@ -8,8 +8,8 @@ import { downloadPhotosFromSeed } from './download';
 import { createTimelapse } from './timelapse';
 import { discoverSeeds, DiscoveredSeed } from './network-scanner';
 
-const DOWNLOAD_DIR_DEFAULT = './photos';
-const VIDEOS_DIR_DEFAULT = './videos';
+const DOWNLOAD_DIR_DEFAULT = '/photos';
+const VIDEOS_DIR_DEFAULT = '/videos';
 
 function ask(question: string): Promise<string> {
   const rl = readline.createInterface({
@@ -104,7 +104,7 @@ async function registerSeed(): Promise<void> {
   
   const validRotation = [0, 90, 180, 270].includes(rotation) ? rotation as 0 | 90 | 180 | 270 : undefined;
   
-  const photosDir = './photos';
+  const photosDir = `${__dirname}/..${DOWNLOAD_DIR_DEFAULT}`;
   const exposeApi = true;
   const port = 4269;
 
@@ -143,9 +143,11 @@ async function downloadCommand(): Promise<void> {
   const overwrite = overwriteAnswer.toLowerCase() === 'y' || overwriteAnswer.toLowerCase() === 'yes';
   
   try {
+    const downloadDir = path.resolve(`${__dirname}/..${DOWNLOAD_DIR_DEFAULT}`);
+
     await downloadPhotosFromSeed({
       seedUrl: seedUrl.replace(/\/+$/, ''), // Remove trailing slashes
-      downloadDir: path.resolve(DOWNLOAD_DIR_DEFAULT),
+      downloadDir,
       overwrite
     });
   } catch (error) {
@@ -161,7 +163,7 @@ async function timelapseCommand(): Promise<void> {
   // Ask if user wants to download from a remote seed or use local photos
   const sourceChoice = await ask('Photo source - (1) Download from remote seed, (2) Use local photos: ');
   
-  let photosDir = path.resolve(DOWNLOAD_DIR_DEFAULT);
+  let downloadDir = path.resolve(`${__dirname}/..${DOWNLOAD_DIR_DEFAULT}`);
   
   if (sourceChoice === '1') {
     console.log('\n📥 First, let\'s download photos from a seed...\n');
@@ -182,7 +184,7 @@ async function timelapseCommand(): Promise<void> {
     try {
       await downloadPhotosFromSeed({
         seedUrl: seedUrl.replace(/\/+$/, ''),
-        downloadDir: photosDir,
+        downloadDir,
         overwrite
       });
       console.log('\n✅ Photos downloaded successfully!\n');
@@ -194,9 +196,9 @@ async function timelapseCommand(): Promise<void> {
   } else if (sourceChoice === '2') {
     const customDir = await ask(`Photos directory (default: ${DOWNLOAD_DIR_DEFAULT}): `);
     if (customDir.trim()) {
-      photosDir = path.resolve(customDir.trim());
+      downloadDir = path.resolve(customDir.trim());
     }
-    console.log(`\n📂 Using photos from: ${photosDir}\n`);
+    console.log(`\n📂 Using photos from: ${downloadDir}\n`);
   } else {
     console.log('❌ Invalid choice. Timelapse cancelled.');
     return;
@@ -212,13 +214,13 @@ async function timelapseCommand(): Promise<void> {
   // Generate timestamp-based filename
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const outputFilename = `timelapse-${timestamp}.mp4`;
-  const outputPath = path.join(VIDEOS_DIR_DEFAULT, outputFilename);
+  const outputPath = path.join(`${__dirname}/..${VIDEOS_DIR_DEFAULT}`, outputFilename);
   
   console.log('\n🎬 Creating timelapse video...\n');
   
   try {
     await createTimelapse({
-      photosDir,
+      photosDir: downloadDir,
       outputPath: path.resolve(outputPath),
       fps,
       quality
@@ -287,7 +289,7 @@ Examples:
 }
 
 function showVersion(): void {
-  // Read version from package.json at runtime
+  // TODO: Read version from package.json at runtime
   console.log('🌱 Lunaria CLI v0.1.0');
 }
 
