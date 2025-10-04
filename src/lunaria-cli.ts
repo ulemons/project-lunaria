@@ -288,9 +288,13 @@ Examples:
   `);
 }
 
-function showVersion(): void {
-  // TODO: Read version from package.json at runtime
-  console.log('🌱 Lunaria CLI v0.1.0');
+async function showVersion(): Promise<void> {
+  try {
+    const packageJson = await import('../package.json');
+    console.log(`🌱 Lunaria CLI v${packageJson.version}`);
+  } catch (error) {
+    console.log('🌱 Lunaria CLI (version unavailable)');
+  }
 }
 
 async function main(): Promise<void> {
@@ -322,7 +326,7 @@ async function main(): Promise<void> {
     case 'version':
     case '--version':
     case '-v':
-      showVersion();
+      await showVersion();
       break;
     default:
       if (!command) {
