@@ -294,6 +294,7 @@ async function showVersion(): Promise<void> {
     console.log(`🌱 Lunaria CLI v${packageJson.version}`);
   } catch (error) {
     console.log('🌱 Lunaria CLI (version unavailable)');
+    
   }
 }
 
