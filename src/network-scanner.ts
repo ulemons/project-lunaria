@@ -116,9 +116,8 @@ async function discoverViaUDP(timeoutMs: number = 3000): Promise<DiscoveredSeed[
 export async function discoverSeeds(timeoutMs: number = 5000): Promise<DiscoveredSeed[]> {
   console.log('[🔍] Scanning network for Lunaria seeds...');
   
-  // Prova prima UDP discovery (veloce)
   console.log('[1/2] Trying UDP discovery...');
-  const udpSeeds = await discoverViaUDP(3000);
+  const udpSeeds = await discoverViaUDP(timeoutMs);
   
   if (udpSeeds.length > 0) {
     console.log(`[✅] UDP Discovery found ${udpSeeds.length} seed(s)`);
