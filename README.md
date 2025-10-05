@@ -216,12 +216,8 @@ journalctl -u lunaria.service -f
   - Cron 4.3.3 (Scheduled photography)
   - UUID 13.0.0 (Unique identifiers)
 - **Video Processing**: FFmpeg (external dependency)
-- **Module System**: CommonJS (for maximum compatibility)
-- **CLI Framework**: Native Node.js readline for interactive prompts
-- **HTTP Client**: Native Node.js http/https modules (no external dependencies)
 
 ## 🧪 Compatibility
-
 
 <!-- TODO: add tested os for raspi 4 -->
 | Device                  | OS | Status     | Note |
