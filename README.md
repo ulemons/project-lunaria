@@ -29,16 +29,19 @@ sudo apt install libcamera-apps
 
 ### NodeJs Setup
 
-Install `Node.js` using `nvm`:
+Install nodejs:
 
 ```
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+sudo apt-get install -y nodejs
 ```
 
-restart the terminal, now you should be able to run:
+if not yet installed, install also npm:
+
 ```
-nvm install node
+sudo apt-get install -y npm
+
 ```
+
 
 ### 🎬 FFmpeg Setup
 
